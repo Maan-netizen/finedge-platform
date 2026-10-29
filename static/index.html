@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinEdge - Enterprise Financial & Split Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased">
+
+  <!-- Navbar -->
+  <header class="border-b border-slate-800/80 bg-slate-900/90 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-black text-xl text-white shadow-lg shadow-indigo-500/30">
+          FE
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-lg tracking-tight">FinEdge Platform</h1>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-400 border border-indigo-800">v2.0 Pro</span>
+          </div>
+          <p class="text-xs text-slate-400">Algorithmic Settlement & Expense Analytics</p>
+        </div>
+      </div>
+      <div id="nav-actions" class="flex items-center gap-3"></div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+    <!-- Auth Container -->
+    <div id="auth-container" class="max-w-md mx-auto my-14 bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl">
+      <div class="flex border-b border-slate-800 pb-3 mb-6">
+        <button id="tab-login" class="flex-1 text-center font-bold text-indigo-400 border-b-2 border-indigo-500 pb-2">Sign In</button>
+        <button id="tab-register" class="flex-1 text-center font-bold text-slate-400 pb-2">Register</button>
+      </div>
+
+      <form id="form-login" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Email</label>
+          <input type="email" id="login-email" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Password</label>
+          <input type="password" id="login-password" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition">
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl text-sm transition shadow-lg shadow-indigo-600/30">Sign In to Dashboard</button>
+      </form>
+
+      <form id="form-register" class="space-y-4 hidden">
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Full Name</label>
+          <input type="text" id="reg-name" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Email</label>
+          <input type="email" id="reg-email" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Password</label>
+          <input type="password" id="reg-password" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition">
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl text-sm transition shadow-lg shadow-indigo-600/30">Create Free Account</button>
+      </form>
+
+      <div id="auth-alert" class="mt-4 text-xs text-center hidden"></div>
+    </div>
+
+    <!-- Main Platform Dashboard -->
+    <div id="dashboard-container" class="hidden space-y-8">
+      
+      <!-- Metrics Bar -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Paid By You</p>
+          <h2 id="metric-paid" class="text-3xl font-extrabold text-emerald-400 mt-2 font-mono">₹0.00</h2>
+        </div>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total You Owe</p>
+          <h2 id="metric-owed" class="text-3xl font-extrabold text-rose-400 mt-2 font-mono">₹0.00</h2>
+        </div>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Your Net Balance</p>
+          <h2 id="metric-net" class="text-3xl font-extrabold text-white mt-2 font-mono">₹0.00</h2>
+        </div>
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Platform Total Volume</p>
+          <h2 id="metric-platform-total" class="text-3xl font-extrabold text-indigo-400 mt-2 font-mono">₹0.00</h2>
+        </div>
+      </div>
+
+      <!-- Analytics Charts Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Donut Chart: Category Spending -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-white text-base flex items-center gap-2">
+              <span>📊</span> Category Spending Distribution
+            </h3>
+            <span class="text-xs text-slate-400">Dynamic Aggregation</span>
+          </div>
+          <div class="h-64 flex items-center justify-center">
+            <canvas id="categoryChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Bar Chart: Daily Trajectory -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-white text-base flex items-center gap-2">
+              <span>📈</span> Daily Spending Trends
+            </h3>
+            <span class="text-xs text-slate-400">Last 7 Days</span>
+          </div>
+          <div class="h-64 flex items-center justify-center">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Algorithmic Settlement Engine Card -->
+      <div class="bg-gradient-to-r from-indigo-950/40 via-slate-900 to-slate-900 border border-indigo-900/40 rounded-2xl p-6 shadow-xl">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 class="font-bold text-white text-lg flex items-center gap-2">
+              <span>⚡</span> Algorithmic Debt Settlement (Min-Cash Flow Engine)
+            </h3>
+            <p class="text-xs text-slate-400">Greedy graph optimization reduces circular debts into minimal cash transfers.</p>
+          </div>
+          <span id="settlement-count-badge" class="text-xs font-semibold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 w-fit">
+            0 Transactions Required
+          </span>
+        </div>
+        <div id="settlements-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <p class="text-slate-500 text-sm">No debts currently pending settlement.</p>
+        </div>
+      </div>
+
+      <!-- Split Engine & Transaction Ledger -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Record Expense Form -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl h-fit">
+          <h3 class="font-bold text-base mb-4 text-white flex items-center gap-2">
+            <span>➕</span> Record New Expense
+          </h3>
+          <form id="form-expense" class="space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Expense Title</label>
+              <input type="text" id="exp-title" placeholder="e.g., Team Outing, AWS Cloud Bill" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-indigo-500">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Total Amount (₹)</label>
+              <input type="number" step="0.01" id="exp-amount" placeholder="0.00" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-indigo-500 font-mono">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1">Category</label>
+              <select id="exp-category" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                <option value="Food & Dining">Food & Dining</option>
+                <option value="Travel & Stay">Travel & Stay</option>
+                <option value="Infrastructure & AWS">Infrastructure & AWS</option>
+                <option value="Utilities & Bills">Utilities & Bills</option>
+                <option value="General">General</option>
+              </select>
+            </div>
+
+            <!-- Dynamic Split Checkboxes -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-xs font-medium text-slate-400">Split Equally With</label>
+                <button type="button" id="btn-split-equal" class="text-xs text-indigo-400 font-semibold hover:underline">Re-Calculate</button>
+              </div>
+              <div id="users-checkbox-list" class="space-y-2 max-h-40 overflow-y-auto p-2.5 bg-slate-950 rounded-xl border border-slate-800 text-xs"></div>
+            </div>
+
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-lg shadow-indigo-600/20">
+              Commit Transaction
+            </button>
+          </form>
+        </div>
+
+        <!-- Expense Transactions Ledger -->
+        <div class="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h3 class="font-bold text-base text-white">Expense Ledger</h3>
+              <p class="text-xs text-slate-400">Live immutable transaction journal</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="btn-export-csv" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-slate-700 flex items-center gap-1.5 transition">
+                <span>⬇️</span> Export CSV
+              </button>
+              <button id="btn-refresh" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+                Refresh
+              </button>
+            </div>
+          </div>
+          <div id="expenses-list" class="space-y-3">
+            <p class="text-slate-500 text-sm">No expenses recorded yet.</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    let token = localStorage.getItem('token');
+    let currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+    let allUsers = [];
+    let categoryChartInstance = null;
+    let trendChartInstance = null;
+
+    const tabLogin = document.getElementById('tab-login');
+    const tabRegister = document.getElementById('tab-register');
+    const formLogin = document.getElementById('form-login');
+    const formRegister = document.getElementById('form-register');
+    const authAlert = document.getElementById('auth-alert');
+    const authContainer = document.getElementById('auth-container');
+    const dashboardContainer = document.getElementById('dashboard-container');
+    const navActions = document.getElementById('nav-actions');
+
+    // Tab toggling
+    tabLogin.addEventListener('click', () => {
+      tabLogin.className = "flex-1 text-center font-bold text-indigo-400 border-b-2 border-indigo-500 pb-2";
+      tabRegister.className = "flex-1 text-center font-bold text-slate-400 pb-2";
+      formLogin.classList.remove('hidden');
+      formRegister.classList.add('hidden');
+    });
+
+    tabRegister.addEventListener('click', () => {
+      tabRegister.className = "flex-1 text-center font-bold text-indigo-400 border-b-2 border-indigo-500 pb-2";
+      tabLogin.className = "flex-1 text-center font-bold text-slate-400 pb-2";
+      formRegister.classList.remove('hidden');
+      formLogin.classList.add('hidden');
+    });
+
+    if (token && currentUser) {
+      showDashboard();
+    }
+
+    formLogin.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          token = data.token;
+          currentUser = data.user;
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(currentUser));
+          showDashboard();
+        } else {
+          showAuthError(data.error);
+        }
+      } catch (err) {
+        showAuthError('Unable to connect to FinEdge backend');
+      }
+    });
+
+    formRegister.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('reg-name').value;
+      const email = document.getElementById('reg-email').value;
+      const password = document.getElementById('reg-password').value;
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ name, email, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showAuthError('Account created! Please sign in.', 'text-emerald-400');
+          tabLogin.click();
+        } else {
+          showAuthError(data.error);
+        }
+      } catch (err) {
+        showAuthError('Failed to register account');
+      }
+    });
+
+    function showAuthError(msg, color = 'text-rose-400') {
+      authAlert.innerText = msg;
+      authAlert.className = `mt-4 text-xs text-center font-medium ${color}`;
+      authAlert.classList.remove('hidden');
+    }
+
+    function showDashboard() {
+      authContainer.classList.add('hidden');
+      dashboardContainer.classList.remove('hidden');
+      navActions.innerHTML = `
+        <span class="text-xs text-slate-400 hidden sm:inline">Signed in as <b class="text-white">${currentUser.name}</b></span>
+        <button id="btn-logout" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3.5 py-1.5 rounded-lg text-slate-300 font-medium transition">Logout</button>
+      `;
+      document.getElementById('btn-logout').addEventListener('click', logout);
+      loadAllDashboardData();
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.reload();
+    }
+
+    async function loadAllDashboardData() {
+      try {
+        const headers = { 'Authorization': `Bearer ${token}` };
+        const [usersRes, expRes, analyticsRes, settleRes] = await Promise.all([
+          fetch('/api/users', { headers }),
+          fetch('/api/expenses', { headers }),
+          fetch('/api/analytics', { headers }),
+          fetch('/api/settlements', { headers })
+        ]);
+
+        if (analyticsRes.status === 401) { logout(); return; }
+
+        allUsers = await usersRes.json();
+        renderUserCheckboxes();
+
+        const expenses = await expRes.json();
+        renderExpenses(expenses);
+
+        const analytics = await analyticsRes.json();
+        updateMetricsAndCharts(analytics);
+
+        const settlements = await settleRes.json();
+        renderSettlements(settlements);
+
+      } catch (err) {
+        console.error("Dashboard error:", err);
+      }
+    }
+
+    function renderUserCheckboxes() {
+      const container = document.getElementById('users-checkbox-list');
+      container.innerHTML = allUsers.map(u => `
+        <label class="flex items-center justify-between gap-2 p-1.5 hover:bg-slate-900 rounded-lg cursor-pointer transition">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" value="${u.id}" class="split-user-check rounded text-indigo-600 bg-slate-800 border-slate-700" ${u.id === currentUser.id ? 'checked' : ''}>
+            <span class="text-slate-300">${u.name} ${u.id === currentUser.id ? '<span class="text-indigo-400 font-semibold">(You)</span>' : ''}</span>
+          </div>
+          <span class="user-split-val text-slate-500 font-mono" id="split-val-${u.id}">₹0.00</span>
+        </label>
+      `).join('');
+    }
+
+    document.getElementById('btn-split-equal').addEventListener('click', calculateSplit);
+    document.getElementById('exp-amount').addEventListener('input', calculateSplit);
+
+    function calculateSplit() {
+      const total = parseFloat(document.getElementById('exp-amount').value) || 0;
+      const checkedBoxes = Array.from(document.querySelectorAll('.split-user-check:checked'));
+      if (checkedBoxes.length === 0 || total <= 0) return;
+
+      const perPerson = (total / checkedBoxes.length).toFixed(2);
+      document.querySelectorAll('.user-split-val').forEach(el => el.innerText = '₹0.00');
+      checkedBoxes.forEach(cb => {
+        const el = document.getElementById(`split-val-${cb.value}`);
+        if (el) el.innerText = `₹${perPerson}`;
+      });
+    }
+
+    document.getElementById('form-expense').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('exp-title').value;
+      const total_amount = parseFloat(document.getElementById('exp-amount').value);
+      const category = document.getElementById('exp-category').value;
+      const checkedBoxes = Array.from(document.querySelectorAll('.split-user-check:checked'));
+
+      if (checkedBoxes.length === 0) {
+        alert('Select at least one participant to split with.');
+        return;
+      }
+
+      const splitAmount = parseFloat((total_amount / checkedBoxes.length).toFixed(2));
+      let diff = total_amount - (splitAmount * checkedBoxes.length);
+
+      const splits = checkedBoxes.map((cb, idx) => ({
+        user_id: parseInt(cb.value),
+        amount: idx === 0 ? parseFloat((splitAmount + diff).toFixed(2)) : splitAmount
+      }));
+
+      const res = await fetch('/api/expenses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ title, total_amount, category, splits })
+      });
+
+      if (res.ok) {
+        document.getElementById('form-expense').reset();
+        loadAllDashboardData();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to record expense');
+      }
+    });
+
+    function updateMetricsAndCharts(data) {
+      document.getElementById('metric-paid').innerText = `₹${data.user_paid.toFixed(2)}`;
+      document.getElementById('metric-owed').innerText = `₹${data.user_owed.toFixed(2)}`;
+      
+      const netEl = document.getElementById('metric-net');
+      netEl.innerText = `₹${data.user_net.toFixed(2)}`;
+      if (data.user_net > 0) netEl.className = "text-3xl font-extrabold text-emerald-400 mt-2 font-mono";
+      else if (data.user_net < 0) netEl.className = "text-3xl font-extrabold text-rose-400 mt-2 font-mono";
+      else netEl.className = "text-3xl font-extrabold text-slate-200 mt-2 font-mono";
+
+      document.getElementById('metric-platform-total').innerText = `₹${data.total_platform_spend.toFixed(2)}`;
+
+      // Category Donut Chart
+      const catLabels = data.categories.map(c => c.category);
+      const catValues = data.categories.map(c => c.total);
+
+      if (categoryChartInstance) categoryChartInstance.destroy();
+      const ctxCat = document.getElementById('categoryChart').getContext('2d');
+      categoryChartInstance = new Chart(ctxCat, {
+        type: 'doughnut',
+        data: {
+          labels: catLabels.length ? catLabels : ['No Data'],
+          datasets: [{
+            data: catValues.length ? catValues : [1],
+            backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 12 } }
+          }
+        }
+      });
+
+      // Daily Trend Bar Chart
+      const trendLabels = data.daily_trend.map(t => t.date);
+      const trendValues = data.daily_trend.map(t => t.amount);
+
+      if (trendChartInstance) trendChartInstance.destroy();
+      const ctxTrend = document.getElementById('trendChart').getContext('2d');
+      trendChartInstance = new Chart(ctxTrend, {
+        type: 'bar',
+        data: {
+          labels: trendLabels.length ? trendLabels : ['Today'],
+          datasets: [{
+            label: 'Total Spend (₹)',
+            data: trendValues.length ? trendValues : [0],
+            backgroundColor: '#4f46e5',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
+            y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    function renderSettlements(data) {
+      const container = document.getElementById('settlements-container');
+      const badge = document.getElementById('settlement-count-badge');
+      const list = data.simplified_settlements || [];
+      badge.innerText = `${list.length} Transfer${list.length === 1 ? '' : 's'} Required`;
+
+      if (list.length === 0) {
+        container.innerHTML = '<p class="text-slate-500 text-sm col-span-full">All balances are settled. No transfers required.</p>';
+        return;
+      }
+
+      container.innerHTML = list.map(s => `
+        <div class="p-3.5 bg-slate-950/80 border border-slate-800 rounded-xl flex items-center justify-between">
+          <div>
+            <div class="text-xs text-slate-400">Debtor pays Creditor</div>
+            <div class="text-sm font-semibold text-white mt-0.5"><span class="text-rose-400">${s.from_user}</span> ➔ <span class="text-emerald-400">${s.to_user}</span></div>
+          </div>
+          <div class="text-base font-extrabold font-mono text-indigo-300">₹${s.amount.toFixed(2)}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderExpenses(list) {
+      const container = document.getElementById('expenses-list');
+      if (!list || list.length === 0) {
+        container.innerHTML = '<p class="text-slate-500 text-sm">No recorded transactions found.</p>';
+        return;
+      }
+      container.innerHTML = list.map(item => `
+        <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between hover:border-slate-700 transition">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-white text-sm">${item.title}</span>
+              <span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-indigo-400 font-medium">${item.category}</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Paid by <b class="text-slate-300">${item.payer_name}</b> • ${item.created_at}</p>
+          </div>
+          <div class="text-right">
+            <span class="text-base font-bold text-white font-mono">₹${item.total_amount.toFixed(2)}</span>
+            <p class="text-[11px] text-slate-400">Split across ${item.splits.length} participants</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // CSV Download handler
+    document.getElementById('btn-export-csv').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/reports/csv', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `finedge_expenses_${Date.now()}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } catch (err) {
+        alert('Failed to download CSV statement');
+      }
+    });
+
+    document.getElementById('btn-refresh').addEventListener('click', loadAllDashboardData);
+  </script>
+</body>
+</html>

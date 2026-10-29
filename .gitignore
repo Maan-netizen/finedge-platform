@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+finedge.db
+instance/
+.env
+.DS_Store
